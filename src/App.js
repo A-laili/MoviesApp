@@ -14,13 +14,16 @@ const App = () => {
     const [selectedMovie, setSelectedMovie] = useState(null); // New state to store the selected movie
 
     const getMovieRequest = async (searchValue) => {
-        const url = `http://www.omdbapi.com/?s=${searchValue}&apikey=70c47435`;
+        const url = `https://api.themoviedb.org/3/search/movie?api_key=00e58447b107bbf5456c351874f74894&query=${searchValue}`;
 
-        const response = await fetch(url);
-        const responseJson = await response.json();
-
-        if (responseJson.Search) {
-            setMovies(responseJson.Search);
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            if (data.results) {
+                setMovies(data.results);
+            }
+        } catch (error) {
+            console.error('Error fetching movies:', error);
         }
     };
 
@@ -41,7 +44,7 @@ const App = () => {
     };
 
     const addFavouriteMovie = (movie) => {
-        const isAlreadyAdded = favourites.some((fav) => fav.imdbID === movie.imdbID);
+        const isAlreadyAdded = favourites.some((fav) => fav.id === movie.id);
 
         if (!isAlreadyAdded) {
             const newFavouriteList = [...favourites, movie];
@@ -51,7 +54,7 @@ const App = () => {
     };
 
     const removeFavouriteMovie = (movie) => {
-        const newFavouriteList = favourites.filter((favourite) => favourite.imdbID !== movie.imdbID);
+        const newFavouriteList = favourites.filter((favourite) => favourite.id !== movie.id);
 
         setFavourites(newFavouriteList);
         saveToLocalStorage(newFavouriteList);
@@ -77,8 +80,8 @@ const App = () => {
                 {selectedMovie && ( // Display selected movie details and trailer if a movie is selected
                     <div className='col-md-6'>
                         <div className='selected-movie-details'>
-                            <h2>{selectedMovie.Title}</h2>
-                            <p>{selectedMovie.description}</p>
+                            <h2>{selectedMovie.title}</h2>
+                            <p>{selectedMovie.overview}</p>
                             {/* Include the iframe for the trailer here */}
                         </div>
                     </div>
